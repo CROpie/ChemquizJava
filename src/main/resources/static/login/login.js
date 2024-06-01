@@ -22,10 +22,10 @@ function checkValidity() {
     errObj.password = 'Please enter a password.'
   }
 
-  if (username && !username.match(/^[a-zA-Z0-9]+@(student\.)?instatute\.edu\.au$/)) {
-    result = false
-    errObj.username = 'Invalid username.'
-  }
+  // if (username && !username.match(/^[a-zA-Z0-9]+@(student\.)?instatute\.edu\.au$/)) {
+  //   result = false
+  //   errObj.username = 'Invalid username.'
+  // }
 
   if (password && !password.match(/^.{8,}$/)) {
     result = false
@@ -74,7 +74,7 @@ async function handleSubmit(event) {
   const formData = new FormData(event.target)
 
   // index.html is in the root folder, so url has to path from there (?)
-  const response = await fetch('./login/login.php', {
+  const response = await fetch('http://localhost:8080/api/login', {
     method: 'POST',
     body: formData,
   })
