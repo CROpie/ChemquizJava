@@ -1,5 +1,15 @@
 import { checkAuth } from '../utils/auth.js'
 
+function formatDate(dateInUnix) {
+  const prettyDate = new Date(dateInUnix)
+  return prettyDate.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  })
+}
+
 async function handleStartGame() {
   const isDifficult = document.getElementById('difficultyToggle').checked
 
@@ -28,12 +38,14 @@ function renderScoreboard(topScores) {
   const TBODY = document.getElementById('scoreboardTbody')
 
   for (let i = 0; i < topScores.length; i++) {
+    const { username, topScore, attemptDate } = topScores[i]
+
     const trow = document.createElement('tr')
 
     const rowTemplate = `
-      <td>${topScores[i].username}</td>
-      <td>${topScores[i].topScore * 10}</td>
-      <td>${topScores[i].attemptDate}</td>
+      <td>${username}</td>
+      <td>${topScore * 10}</td>
+      <td>${formatDate(attemptDate)}</td>
       `
 
     trow.innerHTML = rowTemplate
@@ -45,11 +57,13 @@ function renderScores(userScores) {
   const TBODY = document.getElementById('tbody')
 
   for (let i = 0; i < userScores.length; i++) {
+    const { scoreValue, attemptDate } = userScores[i]
+
     const trow = document.createElement('tr')
 
     const rowTemplate = `
-      <td>${userScores[i].attemptDate}</td>
-      <td>${userScores[i].score * 10}</td>
+      <td>${formatDate(attemptDate)}</td>
+      <td>${scoreValue * 10}</td>
     `
 
     trow.innerHTML = rowTemplate

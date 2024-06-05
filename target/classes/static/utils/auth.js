@@ -8,7 +8,7 @@ export function checkAuth(adminArea) {
     return
   }
 
-  if (adminArea && userInfo.isAdmin !== '1') {
+  if (adminArea && userInfo.isAdmin !== true) {
     // user trying to access admin area when they are not authorized
     window.location.href = '../index.html?error=unauthorized'
     return

@@ -6,21 +6,19 @@ CREATE TABLE Users (
     isAdmin BOOLEAN
 );
 
-INSERT INTO Users (username, password, isAdmin)
+INSERT INTO users (username, password, is_admin)
 VALUES
-("chris", "fishandchips", 0);
+("student", "$2a$10$/GJcnmwt4TQQk6bDIhIad.V99/pmG3YqqMQzYB9yQ/Etx4I0YKiCm", 0),
+("admin", "$2a$10$/GJcnmwt4TQQk6bDIhIad.V99/pmG3YqqMQzYB9yQ/Etx4I0YKiCm", 1);
 
-INSERT INTO Users (username, password, isAdmin)
-VALUES
-("admin", "password", 1);
 
-UPDATE Users
-SET password = "$2y$10$zoAW4SY13p1BQz0HD81Hte8Pi6AbDSWdQef4bvqZawJEPtoMR5pKS"
-WHERE userId = 1;
+UPDATE users
+SET password = "$2a$10$/GJcnmwt4TQQk6bDIhIad.V99/pmG3YqqMQzYB9yQ/Etx4I0YKiCm"
+WHERE user_id = 1;
 
-UPDATE Users
-SET password = "$2y$10$0DTKrN1.96bSniLN85bQoeNjF8bVEUsMAKlhyxg9P/GWxn5gDQGr."
-WHERE userId = 2;
+UPDATE users
+SET password = "$2a$10$/GJcnmwt4TQQk6bDIhIad.V99/pmG3YqqMQzYB9yQ/Etx4I0YKiCm"
+WHERE user_id = 2;
 
 CREATE TABLE Scores (
     gameId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -31,7 +29,16 @@ CREATE TABLE Scores (
     ON DELETE CASCADE
 );
 
-INSERT INTO Scores (userId, score)
+CREATE TABLE Score (
+    game_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    score INT NOT NULL,
+    attempt_date DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (user_id) REFERENCES User(user_id)
+    ON DELETE CASCADE
+);
+
+INSERT INTO scores (user_id, score_value)
 VALUES
 (1, 10), (1, 5), (1, 7), (1, 6);
 
@@ -94,3 +101,12 @@ Selecting multiple specific questions for demo
 SELECT *
 FROM ReactionQ
 WHERE ReactionId = "14" OR ReactionId = "18" OR ReactionId = "19";
+
+
+-------------
+
+SELECT score, attemptDate
+FROM Scores 
+WHERE Scores.UserId='$userId'
+ORDER BY attemptDate DESC
+LIMIT 5;";

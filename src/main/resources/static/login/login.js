@@ -84,8 +84,13 @@ async function handleSubmit(event) {
     return
   }
 
-  // json = { success: boolean, message: string, userData: {userId: "number", username: string, isAdmin: "0" | "1"} }
+  // in the case of admin, data will only contain { userId, username, isAdmin }
+  // but for students, data will contain extra information (explained below)
+  // json = { success: boolean, message: String, data: { userDTO: { userId: int, username: String, isAdmin: boolean } } }
+
   const json = await response.json()
+
+  console.log(json)
 
   // handle failure to log in
   if (!json.success) {
@@ -93,51 +98,37 @@ async function handleSubmit(event) {
     return
   }
 
-  sessionStorage.setItem('userInfo', JSON.stringify(json.userData))
+  sessionStorage.setItem('userInfo', JSON.stringify(json.data.userDTO))
 
   // if admin, go to admin page
-  if (json.userData.isAdmin === '1') {
+  if (json.data.userDTO.isAdmin) {
     window.location.href = './admin/admin.html'
     // return isn't necessary but perhaps good to have just in case
     return
   }
+  /*
+  json.data = {
+    attemptCount: int,
+    leaderboardDTOs: [{
+      userId: int,
+      username: String,
+      attemptDate: Date
+    }, ...],
+    userDTO: {
+      userId: int,
+      username: String,
+      isAdmin: false,
+    },
+    userScores: [{
+      scoreValue: int,
+      attemptDate: Date
+    }, ...]
 
-  // is student so go to student page
-  // writing separately here, but ideally would be sent the student data from php already
+*/
 
-  const response2 = await fetch(`./welcome/welcome.php?userId=${json.userData.userId}`)
-
-  if (!response2.ok) {
-    console.log('something went wrong')
-    return
-  }
-
-  /* json2 =
-    { success: boolean, 
-      message: string, 
-      leaderBoard: [{
-        userId: "number",
-        username: string,
-        attemptDate: string,
-        topScore: "number"
-      }, ...],
-      attemptCount: "number",
-      highestScores: [{
-        score: "number",
-        attemptDate: string)
-      }, ...]  
-  */
-  const json2 = await response2.json()
-
-  // handle failure to get data from database
-  if (!json2.success) {
-    document.getElementById('invalid-submit').textContent = json2.message
-    return
-  }
-
-  sessionStorage.setItem('leaderBoard', JSON.stringify(json2.leaderBoard))
-  sessionStorage.setItem('attemptCount', json2.attemptCount)
-  sessionStorage.setItem('highestScores', JSON.stringify(json2.highestScores))
+  sessionStorage.setItem('leaderBoard', JSON.stringify(json.data.leaderboardDTOs))
+  sessionStorage.setItem('attemptCount', json.data.attemptCount)
+  sessionStorage.setItem('highestScores', JSON.stringify(json.data.userScores))
 
   window.location.href = './welcome/welcome.html'
 }
