@@ -43,13 +43,13 @@ VALUES
 ("student", "$2y$10$0DTKrN1.96bSniLN85bQoeNjF8bVEUsMAKlhyxg9P/GWxn5gDQGr.", 0), 
 ("admin", "$2y$10$0DTKrN1.96bSniLN85bQoeNjF8bVEUsMAKlhyxg9P/GWxn5gDQGr.", 1);
 
-INSERT INTO StructureQ (
+INSERT INTO structure_qs (
     molecule,
     answer,
-    incorrect1,
-    incorrect2,
-    incorrect3,
-    difficulty
+    incorrect_1,
+    incorrect_2,
+    incorrect_3,
+    is_difficult
 )
 VALUES
 ('c1ccccc1', 'benzene', 'toluene', 'methanol', 'ethanol', 0),
@@ -74,16 +74,16 @@ VALUES
 ('NCCc1c[nH]c2ccc(O)cc12', 'serotonin', 'methamphetamine', 'tryptophan', 'safrole', 1),
 ('CN1CCC[C@H]1c2cccnc2', 'nicotine', 'nylon', 'napthylene', 'normorphine', 1);
 
-INSERT INTO ReactionQ (
+INSERT INTO reaction_qs (
     reactant, 
     reagent, 
-    productSmile, 
-    productInchi, 
+    product_smile, 
+    product_inchi, 
     catalyst, 
     solvent, 
     temperature, 
     time, 
-    difficulty
+    is_difficult
 ) 
 VALUES
 ('CC(=O)O', 'NCc1ccccc1', 'CC(=O)NCc1ccccc1', 'InChI=1S/C9H11NO/c1-8(11)10-7-9-5-3-2-4-6-9/h2-6H,7H2,1H3,(H,10,11)', 'PyBOP', 'THF', 25, 1, 1),

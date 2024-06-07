@@ -61,6 +61,16 @@ public interface UserRepository extends JpaRepository<User, Integer> {
  * 
  * Return values of JPQL
  * 
+ *  * *** not sure if this is the correct way to do parameters for native query, maybe below is better:
+ * 
+ * @Query(value="SELECT * FROM users WHERE username = ?1", nativeQuery = true)
+ * List<User> findByUsername(String username)
+ * 
+ *  * *** or:
+ * 
+ *  * @Query(value="SELECT * FROM users WHERE username = :username", nativeQuery = true)
+ * List<User> findByUsername(@Param("username") String username)
+ * 
  * 1. Entity
  * @Query("SELECT u FROM User u WHERE u.username = :username)
  * List<User> findByUsername(String username);

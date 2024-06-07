@@ -4,15 +4,22 @@ import chemquizAPI.common.ApiResponse;
 import chemquizAPI.models.AdminLoginDTO;
 import chemquizAPI.models.LeaderboardDTO;
 import chemquizAPI.models.LoginUser;
+import chemquizAPI.models.QuestionsDTO;
+import chemquizAPI.models.ReactionQ;
 import chemquizAPI.models.Score;
 import chemquizAPI.models.ScoreDTO;
+import chemquizAPI.models.StructureQ;
 import chemquizAPI.models.StudentLoginDTO;
+import chemquizAPI.models.SubmitDTO;
 import chemquizAPI.models.User;
 import chemquizAPI.models.UserDTO;
+import chemquizAPI.repositories.ReactionRepository;
 import chemquizAPI.repositories.ScoreRepository;
+import chemquizAPI.repositories.StructureRepository;
 import chemquizAPI.repositories.UserRepository;
 
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.http.MediaType;
 import org.mindrot.jbcrypt.BCrypt;
@@ -44,6 +51,12 @@ public class LoginUserController {
 
     @Autowired
     private ScoreRepository scoreRepository;
+
+    @Autowired
+    private StructureRepository structureRepository;
+
+    @Autowired
+    private ReactionRepository reactionRepository;
 
     // @GetMapping(value="/password", produces=MediaType.APPLICATION_JSON_VALUE)
     //     public ApiResponse<String> hashPass(@RequestParam String pass) {
@@ -100,25 +113,154 @@ public class LoginUserController {
             return new ApiResponse<>(true, "", adminLoginDTO);
         }
         
-        System.out.println("Find User Scores");
         Pageable pageable5 = PageRequest.of(0, 5);
         List<ScoreDTO> userScores = scoreRepository.findUserTopScores(existingUser.getUserId(), pageable5);
 
-        System.out.println(userScores);
-
-        System.out.println("Find attempt count");
         int attemptCount = scoreRepository.findAttemptCount(existingUser.getUserId());
 
-        System.out.println(attemptCount);
-
-        System.out.println("Find leaderboard");
         Pageable pageable4 = PageRequest.of(0, 4);
         List<LeaderboardDTO> leaderboardDTO = userRepository.findLeaderboardScores(pageable4);
-
-        System.out.println(leaderboardDTO);
 
         StudentLoginDTO studentLoginDTO = new StudentLoginDTO(userDTO, leaderboardDTO, attemptCount, userScores);
 
         return new ApiResponse<>(true, "", studentLoginDTO);
+
+    }
+
+    @GetMapping(value="/admin/structure", produces=MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ApiResponse<List<StructureQ>> getStructureQs() {
+        List<StructureQ> structureQs = structureRepository.findAll();
+        return new ApiResponse<List<StructureQ>>(true, null, structureQs);
+    }
+
+    @PutMapping(value="/admin/structure", produces=MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ApiResponse<List<StructureQ>> postStructureQs(@RequestBody StructureQ inputStructureQ) {
+
+        System.out.println(inputStructureQ.toString());
+
+        // int intializes to 0
+        // for new questions, structureId == 0 so will be inserted into the database
+        if (inputStructureQ.getStructureId() == 0) {
+            structureRepository.save(inputStructureQ);
+        } else {
+            StructureQ existingStructureQ = structureRepository.getReferenceById(inputStructureQ.getStructureId());
+            existingStructureQ.setMolecule(inputStructureQ.getMolecule());
+            existingStructureQ.setAnswer(inputStructureQ.getAnswer());
+            existingStructureQ.setIncorrect1(inputStructureQ.getIncorrect1());
+            existingStructureQ.setIncorrect2(inputStructureQ.getIncorrect2());
+            existingStructureQ.setIncorrect3(inputStructureQ.getIncorrect3());
+            existingStructureQ.setIsDifficult(inputStructureQ.getIsDifficult());
+            structureRepository.save(existingStructureQ);
+
+            // need to call this to ensure changes are persisted before calling findAll() - but doesn't currently work
+            structureRepository.flush();
+        }
+
+        List<StructureQ> structureQs = structureRepository.findAll();
+        return new ApiResponse<List<StructureQ>>(true, null, structureQs);
+    }
+
+    @DeleteMapping(value="/admin/structure", produces=MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ApiResponse<List<StructureQ>> deleteStructureQs(@RequestParam int structureId) {
+
+        structureRepository.deleteById(structureId);
+
+        List<StructureQ> structureQs = structureRepository.findAll();
+        return new ApiResponse<List<StructureQ>>(true, null, structureQs);
+    }
+
+    @GetMapping(value="/admin/reaction", produces=MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ApiResponse<List<ReactionQ>> getReactionQs() {
+        List<ReactionQ> reactionQs = reactionRepository.findAll();
+        System.out.println(reactionQs);
+        return new ApiResponse<List<ReactionQ>>(true, null, reactionQs);
+    }
+
+    @PutMapping(value="/admin/reaction", produces=MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ApiResponse<List<ReactionQ>> postReactionQs(@RequestBody ReactionQ inputReactionQ) {
+
+        System.out.println(inputReactionQ.toString());
+
+        // int intializes to 0
+        // for new questions, structureId == 0 so will be inserted into the database
+        if (inputReactionQ.getReactionId() == 0) {
+            reactionRepository.save(inputReactionQ);
+        } else {
+            ReactionQ existingReactionQ = reactionRepository.getReferenceById(inputReactionQ.getReactionId());
+            existingReactionQ.setReactant(inputReactionQ.getReactant());
+            existingReactionQ.setReagent(inputReactionQ.getReagent());
+            existingReactionQ.setProductSmile(inputReactionQ.getProductSmile());
+            existingReactionQ.setProductInchi(inputReactionQ.getProductInchi());
+            existingReactionQ.setCatalyst(inputReactionQ.getCatalyst());
+            existingReactionQ.setSolvent(inputReactionQ.getSolvent());
+            existingReactionQ.setTemperature(inputReactionQ.getTemperature());
+            existingReactionQ.setTime(inputReactionQ.getTime());
+            existingReactionQ.setIsDifficult(inputReactionQ.getIsDifficult());
+            reactionRepository.save(existingReactionQ);
+
+            // need to call this to ensure changes are persisted before calling findAll() - but doesn't currently work
+            reactionRepository.flush();
+        }
+
+        List<ReactionQ> reactionQs = reactionRepository.findAll();
+        return new ApiResponse<List<ReactionQ>>(true, null, reactionQs);
+    }
+
+    @DeleteMapping(value="/admin/reaction", produces=MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ApiResponse<List<ReactionQ>> deleteReactionQs(@RequestParam int reactionId) {
+
+        reactionRepository.deleteById(reactionId);
+
+        List<ReactionQ> reactionQs = reactionRepository.findAll();
+        return new ApiResponse<List<ReactionQ>>(true, null, reactionQs);
+    }
+
+    @GetMapping(value="/questions", produces=MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ApiResponse<QuestionsDTO> getQuestions(@RequestParam boolean isDifficult) {
+        System.out.println("is diffucult: " + isDifficult);
+        Random random = new Random();
+        int noStructureQs = random.nextInt(5) + 1;
+        int noReactionQs = 5 - noStructureQs;
+
+        System.out.println("RANDOMIZING...");
+        System.out.println(noStructureQs);
+        System.out.println(noReactionQs);
+
+        List<StructureQ> structureQs = structureRepository.findStructureQ(isDifficult, noStructureQs);
+        List<ReactionQ> reactionQs = reactionRepository.findReactionQ(isDifficult, noReactionQs);
+
+        QuestionsDTO questionsDTO = new QuestionsDTO(structureQs, reactionQs);
+        return new ApiResponse<QuestionsDTO>(true, null, questionsDTO);
+    }
+
+    @PostMapping(value="/submit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void postScore(@RequestBody List<SubmitDTO> submitDTOs, @RequestParam int userId) {
+
+        User user = userRepository.getReferenceById(userId);
+
+        int studentScore = 0;
+
+        // determine score
+        for (int i = 0; i < submitDTOs.size(); i++) {
+            SubmitDTO currentSubmit = submitDTOs.get(i);
+            if (currentSubmit.getQuestionType().equals("structure")) {
+                StructureQ currentQuestion = structureRepository.getReferenceById(currentSubmit.getQuestionId());
+                if (currentSubmit.getUserAnswer().equals(currentQuestion.getAnswer())) studentScore++;
+                continue;
+            } 
+            
+            if (currentSubmit.getQuestionType().equals("reaction")) {
+                ReactionQ currentQuestion = reactionRepository.getReferenceById(currentSubmit.getQuestionId());
+                if (currentSubmit.getUserAnswer().equals(currentQuestion.getProductInchi())) studentScore++;
+                continue;
+            }
+        }
+        
+        Score newScore = new Score(studentScore, user);
+        scoreRepository.save(newScore);
+
+        // Get updated score information for Welcome page
+
+
     }
 }

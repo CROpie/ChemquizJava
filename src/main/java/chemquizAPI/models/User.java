@@ -88,8 +88,7 @@ public class User {
 
     @Override
     public String toString() {
-        // return "{ " + this.username + " " + this.dateJoined + " " + this.isAdmin + " " + this.scores + " }";
-        return "{ isAdmin: " + this.isAdmin + " }";
+        return "{ " + this.username + " " + this.dateJoined + " " + this.isAdmin + " " + this.scores + " }";
     }
 
     public boolean checkPassword(String userInputPassword) {

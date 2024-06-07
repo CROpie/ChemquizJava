@@ -11,7 +11,7 @@ import { checkAuth } from '../utils/auth.js'
 
 function handleAnswerQuestion(type, currentGame, questionId, answer) {
   let answerObject = {
-    answerType: type,
+    questionType: type,
     questionId,
   }
 
@@ -144,7 +144,7 @@ async function handleFinishQuiz(answers) {
   MAIN.innerHTML = template
 
   // answers: [{questionType: ("structure" | "reaction"), questionId: number, userAnswer: string, userAnswerSmiles: string? }]
-  const response = await fetch(`../results/results.php?userId=${userId}`, {
+  const response = await fetch(`http://localhost:8080/api/submit?userId=${userId}`, {
     method: 'POST',
     body: JSON.stringify(answers),
     headers: {

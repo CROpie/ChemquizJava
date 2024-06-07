@@ -13,7 +13,7 @@ function formatDate(dateInUnix) {
 async function handleStartGame() {
   const isDifficult = document.getElementById('difficultyToggle').checked
 
-  const response = await fetch(`../questions/questions.php?isDifficult=${isDifficult}`)
+  const response = await fetch(`http://localhost:8080/api/questions?isDifficult=${isDifficult}`)
 
   if (!response.ok) {
     console.log('something went wrong')
@@ -29,8 +29,10 @@ async function handleStartGame() {
     return
   }
 
+  const allQuestions = [...json.data.structureQs, ...json.data.reactionQs]
+
   // store the questions in session storage
-  sessionStorage.setItem('questions', JSON.stringify(json.data))
+  sessionStorage.setItem('questions', JSON.stringify(allQuestions))
   window.location.href = '../questions/questions.html'
 }
 

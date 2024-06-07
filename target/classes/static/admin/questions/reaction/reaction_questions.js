@@ -20,7 +20,7 @@ function validateQuestion(errObj, editData) {
 async function getData() {
   const msgArea = document.getElementById('response-message')
 
-  const response = await fetch('reaction_questions.php')
+  const response = await fetch('http://localhost:8080/api/admin/reaction')
 
   if (!response.ok) {
     msgArea.textContent = 'Error fetching data.'
@@ -39,7 +39,7 @@ async function getData() {
 async function handleDeleteItem(session, reactionId) {
   const msgArea = document.getElementById('response-message')
 
-  const response = await fetch(`reaction_questions.php?reactionId=${reactionId}`, {
+  const response = await fetch(`http://localhost:8080/api/admin/reaction?reactionId=${reactionId}`, {
     method: 'DELETE',
   })
 
@@ -83,7 +83,7 @@ async function handleSubmit(session) {
     return
   }
 
-  const response = await fetch('./reaction_questions.php', {
+  const response = await fetch('http://localhost:8080/api/admin/reaction', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -114,10 +114,6 @@ async function handleSubmit(session) {
 function renderEditable(session) {
   const { editData, editRow, editCol } = session.getState()
 
-  console.log(editData)
-
-  console.log(editData.difficulty)
-
   hideJsme()
   getJsmeApplet().reset()
 
@@ -138,7 +134,7 @@ function renderEditable(session) {
   <div>
     <label for="${editRow}-difficulty-checkbox">Difficult Question?</label>
     <input type="checkbox" id="${editRow}-difficulty-checkbox" ${
-    editData.difficulty === '1' ? 'checked' : ''
+    editData.isDifficult ? 'checked' : ''
   } />
   </div>
   <div class="spacer">.</div>
@@ -326,7 +322,7 @@ function renderReadOnly(session, rData) {
         </div>
         <div class="svg-container">${productSVG ? productSVG : 'Product'}</div>
       </div>
-      ${rData.difficulty === '1' ? '<p>Hard</p>' : ''}
+      ${rData.isDifficult ? '<p>Hard</p>' : ''}
       <div class="buttons-container">
         <button id="${rData.reactionId}-editBtn">Edit</button>
         <button id="${rData.reactionId}-submitBtn" disabled>Submit</button>
@@ -376,7 +372,7 @@ function initCurrentSession() {
     solvent: '',
     temperature: '',
     time: '',
-    difficulty: '0',
+    isDifficult: false,
   }
 
   let currentSessionRef = ''
@@ -417,7 +413,7 @@ function initCurrentSession() {
 
   function handleDifficultyCheckbox() {
     let modifiedData = { ...editData }
-    modifiedData.difficulty = modifiedData.difficulty === '1' ? '0' : '1'
+    modifiedData.isDifficult = !modifiedData.isDifficult
     editData = modifiedData
   }
 
@@ -536,6 +532,8 @@ async function init() {
   initializeJsme()
 
   const existingQData = await getData()
+
+  console.log({existingQData})
 
   // create a closure for storing the data for the page
   const currentSession = initCurrentSession()

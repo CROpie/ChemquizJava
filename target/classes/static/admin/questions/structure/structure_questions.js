@@ -29,7 +29,7 @@ function validateQuestion(errObj, editData) {
 async function getData() {
   const msgArea = document.getElementById('response-message')
 
-  const response = await fetch('structure_questions.php')
+  const response = await fetch('http://localhost:8080/api/admin/structure')
 
   if (!response.ok) {
     msgArea.textContent = 'Error fetching data.'
@@ -62,7 +62,7 @@ async function handleSubmit(session) {
     return
   }
 
-  const response = await fetch('./structure_questions.php', {
+  const response = await fetch('http://localhost:8080/api/admin/structure', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ async function handleSubmit(session) {
 async function handleDeleteItem(session, structureId) {
   const msgArea = document.getElementById('response-message')
 
-  const response = await fetch(`structure_questions.php?structureId=${structureId}`, {
+  const response = await fetch(`http://localhost:8080/api/admin/structure?structureId=${structureId}`, {
     method: 'DELETE',
   })
 
@@ -106,7 +106,6 @@ async function handleDeleteItem(session, structureId) {
 
   // call render with updated data
   session.init(json.data)
-
 }
 
 /* RENDER FUNCTIONS */
@@ -130,7 +129,7 @@ function renderEditable(session) {
     <div>
       <label class="difficulty-label" for="${editRow}-difficulty-checkbox">Difficult Question?</label>
       <input type="checkbox" id="${editRow}-difficulty-checkbox" ${
-    editData.difficulty === '1' ? 'checked' : ''
+    editData.isDifficult ? 'checked' : ''
   } />
     </div>
   </div>
@@ -220,7 +219,7 @@ function renderReadOnly(session, qData) {
     <input class="new-input" id="${qData.structureId}-incorrect3" type="text" value="${
     qData.incorrect3
   }" disabled/>
-    ${qData.difficulty === '1' ? '<label class="difficulty-label">Hard</label>' : ''}
+    ${qData.isDifficult ? '<label class="difficulty-label">Hard</label>' : ''}
   </div>
 
       <div class="buttons-container">
@@ -251,7 +250,7 @@ function initCurrentSession() {
     incorrect1: '',
     incorrect2: '',
     incorrect3: '',
-    difficulty: '0',
+    isDifficult: false,
   }
 
   let currentSessionRef = ''
@@ -278,9 +277,7 @@ function initCurrentSession() {
     modifiedData.incorrect1 = document.getElementById(`${editRow}-incorrect1`).value
     modifiedData.incorrect2 = document.getElementById(`${editRow}-incorrect2`).value
     modifiedData.incorrect3 = document.getElementById(`${editRow}-incorrect3`).value
-    modifiedData.difficulty = document.getElementById(`${editRow}-difficulty-checkbox`).checked
-      ? '1'
-      : '0'
+    modifiedData.isDifficult = document.getElementById(`${editRow}-difficulty-checkbox`).checked
 
     editData = modifiedData
 
@@ -373,6 +370,8 @@ async function init() {
 
   const existingQData = await getData()
 
+  console.log(existingData)
+
   if (!existingQData) return
 
   // create a closure for storing the data for the page
@@ -386,4 +385,3 @@ async function init() {
 }
 
 onload = init
-
