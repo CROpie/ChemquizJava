@@ -78,23 +78,52 @@ function handleLogOut() {
   window.location.href = '../index.html'
 }
 
-function init() {
+async function getScoreData(userId) {
+
+  const response = await fetch(`http://localhost:8080/api/welcome?userId=${userId}`)
+
+  if (!response.ok) {
+    console.log("Something went wrong with getScoreData GET...")
+    return
+  }
+
+  /* { success: boolean, message: String, data: { 
+        attemptCount: int, 
+        leaderboardDTOs: [
+          { userId: int, username: String, attemptDate: int (unixtime), topScore: int }, ... ,
+        ],
+        userScores: [
+          { scoreValue: int, attemptDate: int (unixtime) }, ... ,
+        ]
+        }
+      }
+   */
+
+  const json = await response.json()
+
+  console.log(json)
+
+  return json.data
+
+}
+
+async function init() {
   // prevent unauthorized users from entering admin area
   checkAuth()
 
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
 
-  const highestScores = JSON.parse(sessionStorage.getItem('highestScores'))
-  const leaderBoard = JSON.parse(sessionStorage.getItem('leaderBoard'))
-  const attemptCount = sessionStorage.getItem('attemptCount')
+  const { attemptCount, leaderboardDTOs, userScores } = await getScoreData(userInfo.userId)
+
+  // const highestScores = JSON.parse(sessionStorage.getItem('highestScores'))
+  // const leaderBoard = JSON.parse(sessionStorage.getItem('leaderBoard'))
+  // const attemptCount = sessionStorage.getItem('attemptCount')
 
   document.getElementById('welcome-message').textContent = `Welcome, ${userInfo.username}`
 
-  console.log(userInfo)
+  renderScores(userScores)
 
-  renderScores(highestScores)
-
-  renderScoreboard(leaderBoard)
+  renderScoreboard(leaderboardDTOs)
 
   document.getElementById(
     'total-attempts'

@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT new chemquizAPI.models.LeaderboardDTO(u.userId, u.username, s.attemptDate, MAX(s.scoreValue)) " +
             "FROM User u " +
             "JOIN u.scores s " +
-            "GROUP BY u.userId, u.username, s.attemptDate " +
+            "GROUP BY u.userId, u.username " +
             "ORDER BY Max(s.scoreValue) DESC")
     List<LeaderboardDTO> findLeaderboardScores(Pageable pageable);
 
@@ -123,3 +123,14 @@ public interface UserRepository extends JpaRepository<User, Integer> {
  * 
 []
  */
+
+
+ /*
+  * 
+      $query = "  SELECT users.user_id, users.username, scores.attempt_date, max(scores.score_value) AS topScore
+                FROM users
+                JOIN scores ON users.user_id=scores.user_id
+                GROUP BY users.user_id, users.username
+                ORDER BY topScore DESC
+                LIMIT 5;";
+  */

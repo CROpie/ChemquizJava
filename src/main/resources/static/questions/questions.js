@@ -160,21 +160,14 @@ async function handleFinishQuiz(answers) {
   /* json = 
     { success: boolean, 
       message: string, 
-      score: number, 
-      results: boolean[], 
-      leaderBoard: [{
-        userId: "number",
-        username: string,
-        attemptDate: string,
-        topScore: "number"
-      }, ...],
-      attemptCount: "string",
-      highestScores: [{
-        score: "number",
-        attemptDate: string
-      }, ...]  
+      data: {
+        score: number, 
+        results: boolean[], 
+      }  
   */
   const json = await response.json()
+
+  console.log(json)
 
   // unexpected database failure..
   if (!json.success) {
@@ -183,11 +176,11 @@ async function handleFinishQuiz(answers) {
   }
 
   // store the answers in sessionStorage
-  sessionStorage.setItem('results', JSON.stringify(json.results))
-  sessionStorage.setItem('leaderBoard', JSON.stringify(json.leaderBoard))
-  sessionStorage.setItem('attemptCount', json.attemptCount)
-  sessionStorage.setItem('highestScores', JSON.stringify(json.highestScores))
-  sessionStorage.setItem('score', json.score)
+  sessionStorage.setItem('results', JSON.stringify(json.data.results))
+  // sessionStorage.setItem('leaderBoard', JSON.stringify(json.leaderBoard))
+  // sessionStorage.setItem('attemptCount', json.attemptCount)
+  // sessionStorage.setItem('highestScores', JSON.stringify(json.highestScores))
+  sessionStorage.setItem('score', json.data.score)
 
   // redirect to results page
   window.location.href = '../results/results.html'

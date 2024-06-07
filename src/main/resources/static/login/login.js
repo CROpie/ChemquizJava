@@ -84,10 +84,9 @@ async function handleSubmit(event) {
     return
   }
 
-  // in the case of admin, data will only contain { userId, username, isAdmin }
-  // but for students, data will contain extra information (explained below)
-  // json = { success: boolean, message: String, data: { userDTO: { userId: int, username: String, isAdmin: boolean } } }
 
+
+  // { success: boolean, message: String, data: { userId: int, username: String, isAdmin: boolean }}
   const json = await response.json()
 
   console.log(json)
@@ -98,10 +97,10 @@ async function handleSubmit(event) {
     return
   }
 
-  sessionStorage.setItem('userInfo', JSON.stringify(json.data.userDTO))
+  sessionStorage.setItem('userInfo', JSON.stringify(json.data))
 
   // if admin, go to admin page
-  if (json.data.userDTO.isAdmin) {
+  if (json.data.isAdmin) {
     window.location.href = './admin/admin.html'
     // return isn't necessary but perhaps good to have just in case
     return
@@ -126,9 +125,9 @@ async function handleSubmit(event) {
 
 */
 
-  sessionStorage.setItem('leaderBoard', JSON.stringify(json.data.leaderboardDTOs))
-  sessionStorage.setItem('attemptCount', json.data.attemptCount)
-  sessionStorage.setItem('highestScores', JSON.stringify(json.data.userScores))
+  // sessionStorage.setItem('leaderBoard', JSON.stringify(json.data.leaderboardDTOs))
+  // sessionStorage.setItem('attemptCount', json.data.attemptCount)
+  // sessionStorage.setItem('highestScores', JSON.stringify(json.data.userScores))
 
   window.location.href = './welcome/welcome.html'
 }
