@@ -73,12 +73,20 @@ public class User {
         return this.isAdmin;
     }
 
+    public List<Score> getScores() {
+        return this.scores;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public void setIsAdmin(Boolean isAdmin) {
         this.isAdmin = isAdmin;
     }
 
-    public List<Score> getScores() {
-        return this.scores;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @PrePersist

@@ -370,8 +370,6 @@ async function init() {
 
   const existingQData = await getData()
 
-  console.log(existingData)
-
   if (!existingQData) return
 
   // create a closure for storing the data for the page

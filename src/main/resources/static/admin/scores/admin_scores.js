@@ -1,4 +1,5 @@
 import { checkAuth } from '../../utils/auth.js'
+import { formatDate } from '../../utils/unixdate.js'
 
 function validateScore(errObj, score) {
   if (score && !score.match(/^[0-9]+$/)) {
@@ -17,7 +18,7 @@ function validateScore(errObj, score) {
 async function getData() {
   const msgArea = document.getElementById('response-message')
 
-  const response = await fetch('./admin_scores.php')
+  const response = await fetch('http://localhost:8080/api/admin/scores')
 
   if (!response.ok) {
     msgArea.textContent = 'Error fetching data.'
@@ -38,7 +39,7 @@ async function getData() {
 async function handleDelete(gameId) {
   const msgArea = document.getElementById('response-message')
 
-  const response = await fetch(`./admin_scores.php?gameId=${gameId}`, {
+  const response = await fetch(`http://localhost:8080/api/admin/scores?gameId=${gameId}`, {
     method: 'DELETE',
   })
 
@@ -73,13 +74,15 @@ function renderScores(scoresData) {
   TBODY.innerHTML = ''
 
   for (let i = 0; i < scoresData.length; i++) {
+    const { gameId, username, scoreValue, attemptDate } = scoresData[i]
+
     const trow = document.createElement('tr')
 
     const rowTemplate = `
-      <td id="gameId-${i}">${scoresData[i].gameId}</td>
-      <td id="username-${i}">${scoresData[i].username}</td>
-      <td id="score-${i}">${scoresData[i].score}</td>
-      <td id="attemptDate-${i}">${scoresData[i].attemptDate}</td>
+      <td id="gameId-${i}">${gameId}</td>
+      <td id="username-${i}">${username}</td>
+      <td id="scoreValue-${i}">${scoreValue}</td>
+      <td id="attemptDate-${i}">${formatDate(attemptDate)}</td>
       <td id="editTd-${i}"><button id="editBtn-${i}">E</button></td>
       <td><button id="delBtn-${i}">X</button></td>
     `
@@ -107,6 +110,8 @@ async function handleSaveEditScore(scoresData, i) {
     editedScoreData[key] = document.getElementById(`input-${key}-${i}`).value
   }
 
+  // { gameId: String, username: String, scoreValue: String, attemptDate: String }
+
   // prevent submission if score isn't valid
   let errObj = { success: true, message: '' }
 
@@ -117,7 +122,7 @@ async function handleSaveEditScore(scoresData, i) {
     return
   }
 
-  const response = await fetch('./admin_scores.php', {
+  const response = await fetch('http://localhost:8080/api/admin/scores', {
     method: 'PATCH',
     body: JSON.stringify(editedScoreData),
     headers: {
@@ -174,7 +179,7 @@ function handleEditScore(scoresData, i) {
     .getElementById('saveBtn')
     .addEventListener('click', () => handleSaveEditScore(scoresData, i))
 
-  document.getElementById(`input-score-${i}`).focus()
+  document.getElementById(`input-scoreValue-${i}`).focus()
 }
 
 async function init() {
@@ -182,6 +187,8 @@ async function init() {
   checkAuth(true)
 
   const scoresData = await getData()
+
+  console.log(scoresData)
 
   // ie if something went wrong with the database
   if (!scoresData) return

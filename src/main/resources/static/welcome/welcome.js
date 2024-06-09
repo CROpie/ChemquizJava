@@ -1,14 +1,6 @@
 import { checkAuth } from '../utils/auth.js'
+import { formatDate } from '../utils/unixdate.js'
 
-function formatDate(dateInUnix) {
-  const prettyDate = new Date(dateInUnix)
-  return prettyDate.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-  })
-}
 
 async function handleStartGame() {
   const isDifficult = document.getElementById('difficultyToggle').checked

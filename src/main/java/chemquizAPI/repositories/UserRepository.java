@@ -1,5 +1,6 @@
 package chemquizAPI.repositories;
 
+import chemquizAPI.models.AdminUserDTO;
 import chemquizAPI.models.LeaderboardDTO;
 import chemquizAPI.models.Score;
 import chemquizAPI.models.User;
@@ -36,6 +37,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "GROUP BY u.userId, u.username " +
             "ORDER BY Max(s.scoreValue) DESC")
     List<LeaderboardDTO> findLeaderboardScores(Pageable pageable);
+
+    @Query("SELECT new chemquizAPI.models.AdminUserDTO(u.userId, u.username, u.dateJoined, u.isAdmin) FROM User u")
+    List<AdminUserDTO> getAdminUserDTOs();
 
 
 

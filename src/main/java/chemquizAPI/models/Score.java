@@ -49,7 +49,7 @@ public class Score {
         return this.scoreValue;
     }
 
-    public void getScoreValue(int scoreValue) {
+    public void setScoreValue(int scoreValue) {
         this.scoreValue = scoreValue;
     }
 

@@ -1,4 +1,5 @@
 import { checkAuth } from '../../utils/auth.js'
+import { formatDate } from '../../utils/unixdate.js'
 
 function validatePassword(errObj, password) {
   if (username && !password.match(/^.{8,}$/)) {
@@ -34,7 +35,7 @@ function validateDelAdmin(errObj, username) {
 async function getData() {
   const msgArea = document.getElementById('response-message')
 
-  const response = await fetch('./admin_users.php')
+  const response = await fetch('http://localhost:8080/api/admin/users')
 
   if (!response.ok) {
     msgArea.textContent = 'Error fetching data.'
@@ -66,7 +67,7 @@ async function handleDelete(userData) {
     return
   }
 
-  const response = await fetch(`./admin_users.php?userId=${userData.userId}`, {
+  const response = await fetch(`http://localhost:8080/api/admin/users?userId=${userData.userId}`, {
     method: 'DELETE',
   })
 
@@ -115,11 +116,13 @@ function renderUsers(usersData) {
   for (let i = 0; i < usersData.length; i++) {
     const trow = document.createElement('tr')
 
+    const { userId, username, dateJoined, isAdmin } = usersData[i]
+
     const rowTemplate = `
-      <td id="userId-${i}">${usersData[i].userId}</td>
-      <td id="username-${i}">${usersData[i].username}</td>
-      <td id="dateJoined-${i}">${usersData[i].dateJoined}</td>
-      <td id="isAdmin-${i}">${usersData[i].isAdmin === '1' ? 'yes' : 'no'}</td>
+      <td id="userId-${i}">${userId}</td>
+      <td id="username-${i}">${username}</td>
+      <td id="dateJoined-${i}">${formatDate(dateJoined)}</td>
+      <td id="isAdmin-${i}">${isAdmin ? 'yes' : 'no'}</td>
       <td id="editTd-${i}"><button id="editBtn-${i}">E</button></td>
       <td id="passTd-${i}"><button id="passBtn-${i}">P</button></td>
       <td><button id="delBtn-${i}">X</button></td>
@@ -184,7 +187,7 @@ async function handleSaveNewPassword(usersData, i) {
 
   const updatedUsersData = { ...usersData[i], password: newPassword }
 
-  const response = await fetch('./admin_users.php', {
+  const response = await fetch('http://localhost:8080/api/admin/users', {
     method: 'PUT',
     body: JSON.stringify(updatedUsersData),
     headers: {
@@ -216,9 +219,15 @@ async function handleSaveEditUser(usersData, i) {
   const msgArea = document.getElementById('response-message')
 
   // gather the data from the input
+  // { userId: int, username: String, dateJoined: Date(unix) }
   const editedUserData = {}
 
   for (const key of Object.keys(usersData[i])) {
+    if (key === "isAdmin") {
+      editedUserData[key] = document.getElementById(`input-${key}-${i}`).checked
+      continue;
+    }
+
     editedUserData[key] = document.getElementById(`input-${key}-${i}`).value
   }
 
@@ -233,7 +242,7 @@ async function handleSaveEditUser(usersData, i) {
     return
   }
 
-  const response = await fetch('./admin_users.php', {
+  const response = await fetch('http://localhost:8080/api/admin/users', {
     method: 'PATCH',
     body: JSON.stringify(editedUserData),
     headers: {
@@ -268,6 +277,14 @@ function handleEditUser(usersData, i) {
   // disable any fields that shouldn't be allowed to be edited
   for (const [key, value] of Object.entries(usersData[i])) {
     const td = document.getElementById(`${key}-${i}`)
+
+    if (key === "isAdmin") {
+      td.innerHTML = `
+      <input type="checkbox" id='input-${key}-${i}' ${value ? "checked" : ""} disabled />
+      `
+      continue
+    }
+
     td.innerHTML = `
       <input 
         type=${typeof value === 'string' ? 'text' : 'number'}
@@ -275,7 +292,6 @@ function handleEditUser(usersData, i) {
         value=${value}
         ${key === 'userId' && 'disabled'}
         ${key === 'dateJoined' && 'disabled'}
-        ${key === 'isAdmin' && 'disabled'}
         ${key === 'username' && value === 'admin' && 'disabled'}
       >`
   }
@@ -300,8 +316,7 @@ async function handleAddNewUser() {
 
   const username = document.getElementById('username').value
   const password = document.getElementById('password').value
-  const isAdminBool = document.getElementById('admin').checked
-  const isAdmin = isAdminBool ? '1' : '0'
+  const isAdmin = document.getElementById('admin').checked
 
   // prevent submission if name or password isn't valid
   // will give multiple messages if multiple problems are detected
@@ -315,7 +330,7 @@ async function handleAddNewUser() {
     return
   }
 
-  const response = await fetch('./admin_users.php', {
+  const response = await fetch('http://localhost:8080/api/admin/users', {
     method: 'POST',
     body: JSON.stringify({ username, password, isAdmin }),
     headers: { 'Content-Type': 'application/json' },

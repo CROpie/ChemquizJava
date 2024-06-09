@@ -60,15 +60,8 @@ public class LoginUserController {
     @Autowired
     private ReactionRepository reactionRepository;
 
-    // @GetMapping(value="/password", produces=MediaType.APPLICATION_JSON_VALUE)
-    //     public ApiResponse<String> hashPass(@RequestParam String pass) {
-    //         String hashedPassword = BCrypt.hashpw(pass, BCrypt.gensalt());
-    //         System.out.println(hashedPassword);
-    //         return new ApiResponse<>(true, "", hashedPassword);
-    //     }
-
     @GetMapping(value="/addDummyData")
-        public void addDummyData() {
+    public void addDummyData() {
             User student = new User("student", "$2a$10$/GJcnmwt4TQQk6bDIhIad.V99/pmG3YqqMQzYB9yQ/Etx4I0YKiCm", false);
             User admin = new User("admin", "$2a$10$/GJcnmwt4TQQk6bDIhIad.V99/pmG3YqqMQzYB9yQ/Etx4I0YKiCm", true);
 
@@ -88,9 +81,8 @@ public class LoginUserController {
 
         }
 
-    // ApiResponse<?> allows for all of the possibilities: null (reject), UserDTO (admin), StudentLoginDTO (student)
     @PostMapping(value="/login", produces=MediaType.APPLICATION_JSON_VALUE)
-        public @ResponseBody ApiResponse<UserDTO> logIn(@RequestParam String username, String password) {
+    public @ResponseBody ApiResponse<UserDTO> logIn(@RequestParam String username, String password) {
 
         System.out.println("Find By Username");
         List<User> existingUsers = userRepository.findByUsername(username);
@@ -127,95 +119,6 @@ public class LoginUserController {
         LobbyDataDTO lobbyDataDTO = new LobbyDataDTO(leaderboardDTO, attemptCount, userScores);
 
         return new ApiResponse<>(true, "", lobbyDataDTO);
-    }
-
-
-    @GetMapping(value="/admin/structure", produces=MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ApiResponse<List<StructureQ>> getStructureQs() {
-        List<StructureQ> structureQs = structureRepository.findAll();
-        return new ApiResponse<List<StructureQ>>(true, null, structureQs);
-    }
-
-    @PutMapping(value="/admin/structure", produces=MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ApiResponse<List<StructureQ>> postStructureQs(@RequestBody StructureQ inputStructureQ) {
-
-        System.out.println(inputStructureQ.toString());
-
-        // int intializes to 0
-        // for new questions, structureId == 0 so will be inserted into the database
-        if (inputStructureQ.getStructureId() == 0) {
-            structureRepository.save(inputStructureQ);
-        } else {
-            StructureQ existingStructureQ = structureRepository.getReferenceById(inputStructureQ.getStructureId());
-            existingStructureQ.setMolecule(inputStructureQ.getMolecule());
-            existingStructureQ.setAnswer(inputStructureQ.getAnswer());
-            existingStructureQ.setIncorrect1(inputStructureQ.getIncorrect1());
-            existingStructureQ.setIncorrect2(inputStructureQ.getIncorrect2());
-            existingStructureQ.setIncorrect3(inputStructureQ.getIncorrect3());
-            existingStructureQ.setIsDifficult(inputStructureQ.getIsDifficult());
-            structureRepository.save(existingStructureQ);
-
-            // need to call this to ensure changes are persisted before calling findAll() - but doesn't currently work
-            structureRepository.flush();
-        }
-
-        List<StructureQ> structureQs = structureRepository.findAll();
-        return new ApiResponse<List<StructureQ>>(true, null, structureQs);
-    }
-
-    @DeleteMapping(value="/admin/structure", produces=MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ApiResponse<List<StructureQ>> deleteStructureQs(@RequestParam int structureId) {
-
-        structureRepository.deleteById(structureId);
-
-        List<StructureQ> structureQs = structureRepository.findAll();
-        return new ApiResponse<List<StructureQ>>(true, null, structureQs);
-    }
-
-    @GetMapping(value="/admin/reaction", produces=MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ApiResponse<List<ReactionQ>> getReactionQs() {
-        List<ReactionQ> reactionQs = reactionRepository.findAll();
-        System.out.println(reactionQs);
-        return new ApiResponse<List<ReactionQ>>(true, null, reactionQs);
-    }
-
-    @PutMapping(value="/admin/reaction", produces=MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ApiResponse<List<ReactionQ>> postReactionQs(@RequestBody ReactionQ inputReactionQ) {
-
-        System.out.println(inputReactionQ.toString());
-
-        // int intializes to 0
-        // for new questions, structureId == 0 so will be inserted into the database
-        if (inputReactionQ.getReactionId() == 0) {
-            reactionRepository.save(inputReactionQ);
-        } else {
-            ReactionQ existingReactionQ = reactionRepository.getReferenceById(inputReactionQ.getReactionId());
-            existingReactionQ.setReactant(inputReactionQ.getReactant());
-            existingReactionQ.setReagent(inputReactionQ.getReagent());
-            existingReactionQ.setProductSmile(inputReactionQ.getProductSmile());
-            existingReactionQ.setProductInchi(inputReactionQ.getProductInchi());
-            existingReactionQ.setCatalyst(inputReactionQ.getCatalyst());
-            existingReactionQ.setSolvent(inputReactionQ.getSolvent());
-            existingReactionQ.setTemperature(inputReactionQ.getTemperature());
-            existingReactionQ.setTime(inputReactionQ.getTime());
-            existingReactionQ.setIsDifficult(inputReactionQ.getIsDifficult());
-            reactionRepository.save(existingReactionQ);
-
-            // need to call this to ensure changes are persisted before calling findAll() - but doesn't currently work
-            reactionRepository.flush();
-        }
-
-        List<ReactionQ> reactionQs = reactionRepository.findAll();
-        return new ApiResponse<List<ReactionQ>>(true, null, reactionQs);
-    }
-
-    @DeleteMapping(value="/admin/reaction", produces=MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ApiResponse<List<ReactionQ>> deleteReactionQs(@RequestParam int reactionId) {
-
-        reactionRepository.deleteById(reactionId);
-
-        List<ReactionQ> reactionQs = reactionRepository.findAll();
-        return new ApiResponse<List<ReactionQ>>(true, null, reactionQs);
     }
 
     @GetMapping(value="/questions", produces=MediaType.APPLICATION_JSON_VALUE)
